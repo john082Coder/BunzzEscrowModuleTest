@@ -7,6 +7,7 @@ import {
 } from './constants.js';
 
 import EscrowAbi from './abi/escrowContract.json';
+import Erc20Abi from './abi/erc20.json';
 
 export class Contracts {
   constructor(provider, networkId, web3, options) {
@@ -20,6 +21,7 @@ export class Contracts {
     console.log("this web3 = ", this.web3);
    
     this.escrow = new this.web3.eth.Contract(EscrowAbi);
+    this.erc20 = new this.web3.eth.Contract(Erc20Abi);
     
 
 
