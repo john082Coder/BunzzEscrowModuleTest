@@ -46,9 +46,22 @@ export const getFeePercent = async (escrowContract) => {
   
     return new BigNumber(feePercent);
   } catch {
-  
+    console.log("error");
     return new BigNumber(0);
   }
+
+}
+export const getPoolsCount = async(escrowContract) => {
+  
+  try {
+    const poolCount = await escrowContract.methods.poolCount().call();
+ //   console.log("asdfdsf = ", poolCount)
+  
+    return poolCount;
+  } catch {
+    console.log("asdfdsf = 22")
+    return 0;
+  } 
 
 }
 export const depositByEth = async (escrowContract, amount, recipientAddress, agentAddress, account) => {
@@ -71,3 +84,19 @@ export const deposit = async (escrowContract, amount, tokenAddress, recipientAdd
 export const release = async() => {
 
 } 
+export const approve = async(erc20Contract, escrowContract, account) => {
+  return erc20Contract.methods
+  .approve(escrowContract.options.address, ethers.constants.MaxUint256)
+  .send({ from: account });
+}
+export const getPools = async(escrowContract) => {
+  try {
+    const pool = await escrowContract.methods.pools(0).call();
+    
+  
+    return pool;
+  } catch {
+  
+    return null;
+  } 
+}

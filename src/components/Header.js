@@ -33,7 +33,7 @@ const Header = () => {
                         <Link to="/" className={location.pathname === "/" ? `nav-link active` : 'nav-link'}>Creator</Link>
                     </Nav.Item>
                     <Nav.Item>
-                        <Link to="/receive" className={location.pathname === "/receive" ? `nav-link active` : 'nav-link'}>Receive</Link>
+                        <Link to="/agentpage" className={location.pathname === "/agentpage" ? `nav-link active` : 'nav-link'}>AgentPage</Link>
                     </Nav.Item>
                 </Nav>
                 <Nav>

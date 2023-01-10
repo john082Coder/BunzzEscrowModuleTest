@@ -2,11 +2,13 @@ import { Button, Col, Container, Row, Form } from "react-bootstrap";
 import React, { useState, useEffect, useCallback } from "react";
 import useFeePercent from "../hooks/useFeePercent";
 import useAllowance from '../hooks/useAllowance';
+import useApprove from '../hooks/useApprove';
 import useEscrow from '../hooks/useEscrow';
 import { bnToDec, isAddress } from '../utils';
-import {getEscrowContract, depositByEth, getErc20Contract,setErc20ContractAddress } from '../contracts/utils'
+import {getEscrowContract, depositByEth, getErc20Contract,setErc20ContractAddress,deposit } from '../contracts/utils'
 import { useWeb3React } from "@web3-react/core";
 import BigNumber from 'bignumber.js';
+import usePools from '../hooks/usePools';
 const Creator = () => {
     const escrow = useEscrow();
     const { account} = useWeb3React();
@@ -18,6 +20,8 @@ const Creator = () => {
     const feePercent = (useFeePercent(escrowContract));
     const erc20Contract = getErc20Contract(escrow);
     const allowance = bnToDec(useAllowance(erc20Contract, escrowContract));
+    const { onApprove } = useApprove(erc20Contract, escrowContract);
+   
 
     useEffect(() => {
         if(isAddress(tokenAddress))
@@ -25,6 +29,15 @@ const Creator = () => {
       }, [account, escrowContract, tokenAddress]);
    
       console.log("allowance = ", allowance);
+    const handleApprove = useCallback(async () => {
+        try { 
+            const txHash = await onApprove();
+            if (!txHash) {
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }, [onApprove]);
     return (
         <Container>
             <Row className="justify-content-center mt-5">
@@ -65,11 +78,43 @@ const Creator = () => {
                         }}>
                             DepositEth
                         </Button>
-
-                        <Button variant="dark">DepositToken</Button>
+                        {allowance?(
+                            <>
+                             <Button className="mx-3" variant="dark"  onClick={async () => {
+                                try {
+                                    let txHash;
+                                    
+                                    txHash = await deposit(
+                                        escrowContract,
+                                        depositAmount,
+                                        tokenAddress,
+                                        recipientAddress,
+                                        agentAddress,
+                                        account,
+                                    );
+                                
+                                    console.log(txHash);
+                                    
+                                } catch (e) {
+                                    console.log(e);
+                                    
+                                }
+                            }} >
+                            DepositToken
+                            </Button>
+                            </>
+                        ):(
+                            <>
+                             <Button className="mx-3" variant="dark"  disabled >DepositToken</Button>
+                             <Button variant="dark" className="mt-3" onClick={handleApprove} >Approve Token</Button>
+                            </>
+                        )}
+                       
+                       
                     </Form>
                     {(feePercent?feePercent.toNumber():-1)}
-                    {(allowance?allowance:-1)}
+
+                  
                 </Col>
             </Row>
         </Container>

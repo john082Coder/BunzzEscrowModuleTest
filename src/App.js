@@ -4,7 +4,7 @@ import {
     Route
   } from "react-router-dom";
 import Creator from './pages/Creator';
-import Receive from './pages/Receive';
+import AgentPage from './pages/AgentPage';
 import Header from './components/Header';
 import { Web3Provider } from '@ethersproject/providers'
 
@@ -17,7 +17,7 @@ export const App = () => {
                     <Header />
                     <Routes>
                         <Route path="/" element={<Creator />} />
-                        <Route path="/receive" element={<Receive />} />
+                        <Route path="/agentpage" element={<AgentPage />} />
                     </Routes>
                 </Router>
             
