@@ -1,11 +1,13 @@
 import { Button, Col, Container, Row, Form } from "react-bootstrap";
 import useEscrow from '../hooks/useEscrow';
 import usePools from '../hooks/usePools';
-import {getEscrowContract, depositByEth, getErc20Contract,setErc20ContractAddress } from '../contracts/utils'
+import {getEscrowContract, release, getErc20Contract,setErc20ContractAddress } from '../contracts/utils'
+import { useWeb3React } from "@web3-react/core";
 const AgentPage = () => {
     const escrow = useEscrow();
     const escrowContract = getEscrowContract(escrow);
     const {pools, poolCount} = usePools(escrowContract);
+    const { account} = useWeb3React();
     //console.log("pools = ", pools?.toNumber());
     return  (
         <Container>
@@ -13,13 +15,37 @@ const AgentPage = () => {
                 <Col lg="4" md="4" xs="12">
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
-
-                            <Form.Label>Pool {poolCount}</Form.Label>
-                            <div>sender:{pools?.sender}</div>
-                            <div>recipient:{pools?.recipient}</div>
-                            <div>agent:{pools?.agent}</div>
+                            {pools.map((pool, key) => (
+                                <>
+                                    <Form.Label>Pool {key}</Form.Label>
+                                    <div>token:{pool?.token}</div>
+                                    <div>sender:{pool?.sender}</div>
+                                    <div>recipient:{pool?.recipient}</div>
+                                    <div>agent:{pool?.agent}</div>
+                                     <Button variant="dark" onClick={async () => {
+                                        try {
+                                            let txHash;
+                                            
+                                            txHash = await release(
+                                                escrowContract,
+                                                key,
+                                                account,
+                                            );
+                                        
+                                            console.log(txHash);
+                                            
+                                        } catch (e) {
+                                            console.log(e);
+                                            
+                                        }
+                                     }}>Release
+                                    </Button>
+                                     <div></div>
+                                </>
+                            ))
+                            }
                         </Form.Group>
-                        <Button variant="dark">Release</Button>
+                       
 
                     </Form>
                     

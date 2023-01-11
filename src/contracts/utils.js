@@ -37,6 +37,18 @@ export const getAllowance = async (
     return '0'
   }
 }
+export const getDecimal = async (
+  erc20Contract,
+) => {
+  try {
+    const decimal = await erc20Contract.methods
+      .decimals()
+      .call()
+      return new BigNumber(decimal);
+  } catch (e) {
+    return new BigNumber(0);
+  }
+}
 
 export const getFeePercent = async (escrowContract) => {
   
@@ -65,7 +77,7 @@ export const getPoolsCount = async(escrowContract) => {
 
 }
 export const depositByEth = async (escrowContract, amount, recipientAddress, agentAddress, account) => {
-  
+ 
     return escrowContract.methods.depositByETH(recipientAddress, agentAddress).send({ from: account, value:new BigNumber(amount).times(new BigNumber(10).pow(18)).toString() })
     .on('transactionHash', (tx) => {
       console.log(tx)
@@ -73,25 +85,47 @@ export const depositByEth = async (escrowContract, amount, recipientAddress, age
     });
     
 }
-export const deposit = async (escrowContract, amount, tokenAddress, recipientAddress, agentAddress, account) => {
-  return escrowContract.methods.deposit(tokenAddress, recipientAddress, agentAddress, new BigNumber(amount).times(new BigNumber(10).pow(18)).toString() ).send({ from: account})
+export const deposit = async (escrowContract, amount, tokenAddress, recipientAddress, agentAddress, account, erc20Contract) => {
+  
+  const decimal =await erc20Contract.methods.decimals().call();
+  console.log("decimal = ", decimal);
+  return escrowContract.methods.deposit(tokenAddress, recipientAddress, agentAddress, new BigNumber(amount).times(new BigNumber(10).pow(decimal)).toString() ).send({ from: account})
   .on('transactionHash', (tx) => {
     console.log(tx)
     return tx.transactionHash
   });
 }
 
-export const release = async() => {
+export const release = async(escrowContract, poolId, account) => {
+  return escrowContract.methods.release(poolId).send({ from: account})
+  .on('transactionHash', (tx) => {
+    console.log(tx)
+    return tx.transactionHash
+  });
 
 } 
+export const approveCancel = async(escrowContract, poolId, account) => {
+  return escrowContract.methods.approveCancel(poolId).send({ from: account})
+  .on('transactionHash', (tx) => {
+    console.log(tx)
+    return tx.transactionHash
+  });
+}
+export const cancel = async(escrowContract, poolId, account) => {
+  return escrowContract.methods.cancel(poolId).send({ from: account})
+  .on('transactionHash', (tx) => {
+    console.log(tx)
+    return tx.transactionHash
+  });
+}
 export const approve = async(erc20Contract, escrowContract, account) => {
   return erc20Contract.methods
   .approve(escrowContract.options.address, ethers.constants.MaxUint256)
   .send({ from: account });
 }
-export const getPools = async(escrowContract) => {
+export const getPools = async(escrowContract,poolId=0) => {
   try {
-    const pool = await escrowContract.methods.pools(0).call();
+    const pool = await escrowContract.methods.pools(poolId).call();
     
   
     return pool;

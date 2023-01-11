@@ -8,7 +8,7 @@ import { getPools,getPoolsCount,getEscrowContract, getFeePercent } from '../cont
 
 const usePools = (escrowContract=null) => {
  
-  const [pools, setPools] = useState(0);
+  const [pools, setPools] = useState([]);
   const [poolCount, setPoolCount] = useState(0);
   const {  connector,
     library,
@@ -24,13 +24,24 @@ const usePools = (escrowContract=null) => {
 
     const fetchPools = useCallback(async () => {
       console.log("escrowContract = ", escrowContract);
-      const pools = await getPools(
-        escrowContract
-      );
+      
       const poolCount = await getPoolsCount(escrowContract);
+      console.log("poolCount = ", poolCount)
+      let  pp  = new Array();
+      for(var i = 0;i<poolCount;i++)
+      {
+      
+        const pool = await getPools(
+          escrowContract,i
+        );
+       
+        pp.push(pool);
+
+      }
+      setPools(pp)
       console.log("pools = ", pools);
 
-      setPools(pools);
+      
       setPoolCount(poolCount);
     }, [account, escrowContract]);
   

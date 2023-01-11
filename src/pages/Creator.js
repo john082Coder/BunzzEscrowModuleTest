@@ -5,7 +5,7 @@ import useAllowance from '../hooks/useAllowance';
 import useApprove from '../hooks/useApprove';
 import useEscrow from '../hooks/useEscrow';
 import { bnToDec, isAddress } from '../utils';
-import {getEscrowContract, depositByEth, getErc20Contract,setErc20ContractAddress,deposit } from '../contracts/utils'
+import {getEscrowContract, depositByEth, getErc20Contract,setErc20ContractAddress,deposit, cancel, approveCancel } from '../contracts/utils'
 import { useWeb3React } from "@web3-react/core";
 import BigNumber from 'bignumber.js';
 import usePools from '../hooks/usePools';
@@ -21,6 +21,7 @@ const Creator = () => {
     const erc20Contract = getErc20Contract(escrow);
     const allowance = bnToDec(useAllowance(erc20Contract, escrowContract));
     const { onApprove } = useApprove(erc20Contract, escrowContract);
+    const {pools, poolCount} = usePools(escrowContract);
    
 
     useEffect(() => {
@@ -91,6 +92,7 @@ const Creator = () => {
                                         recipientAddress,
                                         agentAddress,
                                         account,
+                                        erc20Contract
                                     );
                                 
                                     console.log(txHash);
@@ -106,11 +108,58 @@ const Creator = () => {
                         ):(
                             <>
                              <Button className="mx-3" variant="dark"  disabled >DepositToken</Button>
+                             
                              <Button variant="dark" className="mt-3" onClick={handleApprove} >Approve Token</Button>
                             </>
                         )}
-                       
-                       
+                       <div></div>
+                       {pools.map((pool, key) => (
+                                <>
+                                    <Form.Label>Pool {key}</Form.Label>
+                                    <div>token:{pool?.token}</div>
+                                    <div>sender:{pool?.sender}</div>
+                                    <div>recipient:{pool?.recipient}</div>
+                                    <div>agent:{pool?.agent}</div>
+                                     <Button className="mx-3" variant="dark" onClick={async () => {
+                                        try {
+                                            let txHash;
+                                            
+                                            txHash = await approveCancel(
+                                                escrowContract,
+                                                key,
+                                                account,
+                                            );
+                                        
+                                            console.log(txHash);
+                                            
+                                        } catch (e) {
+                                            console.log(e);
+                                            
+                                        }
+                                     }}>Approve Cancel
+                                    </Button>
+                                    <Button variant="dark" onClick={async () => {
+                                        try {
+                                            let txHash;
+                                            
+                                            txHash = await cancel(
+                                                escrowContract,
+                                                key,
+                                                account,
+                                            );
+                                        
+                                            console.log(txHash);
+                                            
+                                        } catch (e) {
+                                            console.log(e);
+                                            
+                                        }
+                                     }}> Cancel
+                                    </Button>
+                                     <div></div>
+                                </>
+                            ))
+                            }
                     </Form>
                     {(feePercent?feePercent.toNumber():-1)}
 
